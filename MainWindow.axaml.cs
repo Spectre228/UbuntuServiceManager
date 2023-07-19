@@ -8,25 +8,28 @@ namespace ServiceManager
     public partial class MainWindow : Window
     {
 
-        private List<string> servs;
+        public List<string> servs;
 
         public MainWindow()
         {
             InitializeComponent();
-            servs = new List<string>(); //{ "cat", "pet", "net", "cat", "camel", "cow", "chameleon", "mouse", "lion", "zebra" };
-            servBox.ItemsSource = servs;
-            //ServiceLogics.getServiceList("", ref servs, ref OutputLog);
+            servs = new List<string>();
+            servBox.ItemsSource = ServiceLogics.getServiceList("");
         }
 
         private void GetButt_Click(object? sender, RoutedEventArgs e)
         {
-            ServiceLogics.getServiceList(Inp.Text, ref servs, ref OutputLog);
+            servBox.ItemsSource=ServiceLogics.getServiceList(Inp.Text);
+            Inp.Text="";
         }
 
         private void ReqSwitch(string action)
         {
             if (servBox.SelectedItem != null)
-            { OutputLog.Text = ServiceLogics.requestHandler(servBox.SelectedItem.ToString(), action); }
+            {
+            	OutputLog.Text = ServiceLogics.requestHandler(servBox.SelectedItem.ToString(), action);
+            	servBox.ItemsSource=ServiceLogics.getServiceList(servBox.SelectedItem.ToString().Split(".")[0]);
+            }
             else
             { OutputLog.Text = "Service is not chosen"; }
         }

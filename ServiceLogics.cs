@@ -14,11 +14,11 @@ namespace ServiceManager
     {
         private static string requestPerformer(string selItm, string status, string action)
         {
-            if ((selItm).Remove(0, 70).Contains(status) && status.Equals("running"))
+            if (selItm.Contains(status) && status.Equals(" active "))
             {
                 return "This service is already in running process \n";
             }
-            else if ((selItm).Remove(0, 70).Contains(status) && status.Equals("exited"))
+            else if (selItm.Contains(status) && status.Equals(" inactive "))
             {
                 return "This service has already finished its run \n";
             }
@@ -26,8 +26,8 @@ namespace ServiceManager
             var proc = new Process();
             var statChecker = new Process();
 
-            proc.StartInfo = new ProcessStartInfo("service", (selItm).Split(".")[0].Remove(0, 2) + " " + action);
-            statChecker.StartInfo = new ProcessStartInfo("service", (selItm).Split(".")[0].Remove(0, 2) + " status")
+            proc.StartInfo = new ProcessStartInfo("service", (selItm).Split(".")[0]/*.Remove(0, 2)*/ + " " + action);
+            statChecker.StartInfo = new ProcessStartInfo("service", (selItm).Split(".")[0]/*.Remove(0, 2)*/ + " status")
             {
                 RedirectStandardOutput = true
             };
@@ -40,7 +40,7 @@ namespace ServiceManager
             string res = "";
             while (!statChecker.StandardOutput.EndOfStream)
             {
-                res += statChecker.StandardOutput.ReadLine();
+                res += statChecker.StandardOutput.ReadLine() + "\n";
             }
 
             statChecker.WaitForExit();
@@ -49,27 +49,51 @@ namespace ServiceManager
         }
 
         //private static List<string>? servs;
+        
+        private static string whiteSpaceFormator(string nextOutputStr)
+        {
+        	    nextOutputStr = nextOutputStr.Remove(75).Remove(0, 2);
+        	    
+                    for (int i=0; i<nextOutputStr.Length; i++)
+                    {
+                    	if (nextOutputStr[i].Equals(' ') && i<53)
+                    	{
+                    	    for (int j=i; j<=53; j++)
+                    	    {
+                    	    	nextOutputStr=nextOutputStr.Insert(j, " ");
+                    	    }
+                    	    break;
+                    	}
+                    }
+                    
+                    return nextOutputStr;
+        }
 
-        public static void getServiceList(string searchReq, ref List<string> servs, ref TextBlock OutputLog)
+        public static List<string> getServiceList(string searchReq)
         {
             var proc = new Process();
-            proc.StartInfo = new ProcessStartInfo("systemctl", "list-units -t service")
+            proc.StartInfo = new ProcessStartInfo("systemctl", "list-units -t service --all")
             {
                 RedirectStandardOutput = true
             };
 
             proc.Start();
 
-            servs = new List<string>();
+            List<string> servs = new List<string>();
             string nextOutputStr = " ";
 
             if (String.IsNullOrWhiteSpace(searchReq))
             {
+                int firstIterSkiped = 0;
                 while (!String.IsNullOrEmpty(nextOutputStr = proc.StandardOutput.ReadLine()))
                 {
-                    servs.Add(nextOutputStr.Remove(78));
-                    //OutputLog.Text += servs[^1] + "\n";
-                    //Console.WriteLine(servs[^1]);
+                    //if (firstIterSkiped==0)
+                    //{ continue; }
+                    
+                    firstIterSkiped++;
+                    
+                    nextOutputStr = whiteSpaceFormator(nextOutputStr);
+                    servs.Add(nextOutputStr);
                 }
 
                 proc.WaitForExit();
@@ -80,14 +104,14 @@ namespace ServiceManager
                 {
                     if (nextOutputStr.Split(".")[0].Remove(0, 2).Contains(searchReq)) // Determining whether SERVICE NAME contains search request string
                     {
-                        servs.Add(nextOutputStr.Remove(78));
-                        //OutputLog.Text += servs[^1] + "\n";
-                        //Console.WriteLine(servs[^1]);
+                    	nextOutputStr = whiteSpaceFormator(nextOutputStr);
+                        servs.Add(nextOutputStr);
                     }
                 }
 
                 proc.WaitForExit();
             }
+            return servs;
         }
 
         public static string requestHandler(string selItm, string action)
@@ -96,15 +120,15 @@ namespace ServiceManager
             {
                     case "start" : 
                     {
-                        return requestPerformer(selItm, "running", action);
+                        return requestPerformer(selItm, " active ", action);
                     }
                     case "stop" : 
                     {
-                        return requestPerformer(selItm, "exited", action);
+                        return requestPerformer(selItm, " inactive ", action);
                     }
                     case "restart" :
                     {
-                        return requestPerformer(selItm, "", action);
+                        return requestPerformer(selItm, " inactive ", action);
                     }
                     default :
                     {

@@ -5,20 +5,20 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="ServiceManager.MainWindow"
         Title="ServiceManager"
-		SizeToContent="WidthAndHeight">
+		Width="595" Height="435">
 
 	<Window.Styles>
 		<StyleInclude Source="/Styles.axaml"/>
 	</Window.Styles>
 	
-    <Grid RowDefinitions="*, *, *" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid RowDefinitions="*, Auto, *" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 		
 		<!--<DataGrid Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="Purple">
 			
 		</DataGrid>-->
 		
 		
-		<ListBox Grid.Row="0" x:Name="servBox"></ListBox>
+		<ListBox Grid.Row="0" x:Name="servBox" Background="Blue" Foreground="White"></ListBox>
 		
 		
 		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
@@ -26,13 +26,17 @@
 			<Button x:Name="StarButt" Content="Start" Click="StarButt_Click"></Button>
 			<Button x:Name="ResButt" Content="Restart" Click="ResButt_Click"></Button>
 			<TextBox x:Name="Inp"></TextBox>
-			<Button x:Name="GetButt" Content="Get" Click="GetButt_Click"></Button>
+			<Button x:Name="GetButt" Content="Show" Click="GetButt_Click"></Button>
 		</StackPanel>
 
 
-		<TextBlock x:Name="OutputLog" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-			Text
-		</TextBlock>
+		<ScrollViewer x:Name="ScrollViewer1" Grid.Row="2" VerticalScrollBarVisibility="Visible" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+			<Border>
+				<TextBlock x:Name="OutputLog" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightGreen">
+					Text
+				</TextBlock>
+			</Border>
+		</ScrollViewer>
 		
 	</Grid>
 	
